@@ -41,15 +41,11 @@ cat("Diretório do projeto:", pasta_projeto, "\n")
 pacotes <- c(
   "sf",
   "terra",
-  "dplyr",
-  "ggplot2",
   "mapview",
   "reticulate",
   "rgee",
   "geojsonio",
   "tidyverse",
-  "readr",
-  "tidyr",
   "xts",
   "dygraphs",
   "ggspatial"
@@ -980,6 +976,53 @@ write.csv2(
   row.names = FALSE
 )
 
+# 4.10 INDICADORES DE MUDANÇA 2000 vs 2023
+#########################################
+
+indicadores_2000_2023 <- resultado_uso_solo %>%
+  mutate(
+    grupo = case_when(
+      nome %in% c("Formação Florestal",
+                  "Formação Savânica",
+                  "Mangue",
+                  "Floresta Alagável",
+                  "Área Úmida Natural",
+                  "Formação Natural não Florestal",
+                  "Campo Alagado") ~ "Coberturas Vegetais",
+      
+      nome %in% c("Pastagem",
+                  "Agricultura",
+                  "Lavoura Temporária",
+                  "Mosaico Agricultura/Pastagem",
+                  "Soja",
+                  "Algodão") ~ "Agricultura e Agropecuária",
+      
+      nome %in% c("Área Urbana") ~ "Áreas Urbanas",
+      
+      TRUE ~ "Outros"
+    )
+  ) %>%
+  group_by(ano, grupo) %>%
+  summarise(area_ha = sum(area_ha, na.rm = TRUE), .groups = "drop") %>%
+  filter(ano %in% c(2000, 2023)) %>%
+  pivot_wider(names_from = ano, values_from = area_ha) %>%
+  mutate(
+    mudanca_ha = `2023` - `2000`,
+    mudanca_percentual = ifelse(`2000` > 0,
+                                ((`2023` - `2000`) / `2000`) * 100,
+                                NA)
+  )
+
+print(indicadores_2000_2023)
+
+write.csv2(
+  indicadores_2000_2023,
+  "resultados/tabelas/indicadores_mudanca_2000_2023.csv",
+  row.names = FALSE
+)
+
+
+print(indicadores_2000_2023)
 print(grafico_temporal)
 print(grafico_barra)
 print(grafico_area_empilhada)
