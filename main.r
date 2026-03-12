@@ -599,7 +599,6 @@ colnames(resultado_uso_solo) <- c(
 resultado_uso_solo <- resultado_uso_solo %>%
   filter(!is.na(nome))
 
-#############################
 # 4.3 MAPA ANOS 1985 A 2023
 #############################
 
