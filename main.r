@@ -789,64 +789,6 @@ write.csv2(
   row.names = FALSE
 )
 
-# 4.7 ANÁLISE AGRÍCOLA
-########################
-
-legenda_agricultura <- data.frame(
-  classe = c(21,15),
-  cultura = c(
-    "Mosaico Agricultura/Pastagem",
-    "Pastagem"
-  )
-)
-
-resultado_agricultura <- data.frame()
-
-for(a in anos){
-  
-  r <- mapbiomas_mask[[paste0("classification_",a)]]
-  
-  r[r == 0] <- NA
-  
-  tab <- terra::freq(r)
-  
-  tab <- as.data.frame(tab)
-  
-  tab <- tab[,c("value","count")]
-  
-  colnames(tab) <- c("classe","pixels")
-  
-  tab$ano <- a
-  
-  resultado_agricultura <- rbind(
-    resultado_agricultura,
-    tab
-  )
-}
-
-resultado_agricultura <- resultado_agricultura %>%
-  
-  left_join(
-    legenda_agricultura,
-    by = "classe"
-  ) %>%
-  
-  filter(!is.na(cultura)) %>%
-  
-  group_by(ano) %>%
-  
-  mutate(
-    proporcao_percent = pixels / sum(pixels) * 100
-  ) %>%
-  
-  ungroup()
-
-write.csv2(
-  resultado_agricultura,
-  "resultados/tabelas/agricultura_detalhada_por_ano.csv",
-  row.names = FALSE
-)
-
 anos_comparacao <- c(1985, 2023)
 
 comparacao <- resultado_uso_solo %>%
